@@ -1,5 +1,7 @@
 import express from "express"; import dotenv from "dotenv"; import path from "path"; import {fileURLToPath} from "url";
-dotenv.config(); const app=express(),dir=path.dirname(fileURLToPath(import.meta.url)); app.use(express.json()); app.use(express.static(path.join(dir,"public")));
+dotenv.config(); const app=express(),dir=path.dirname(fileURLToPath(import.meta.url)); app.use(express.json());app.get("/",(q,s)=>s.sendFile(path.join(dir,"index.html")));
+app.get("/manifest.webmanifest",(q,s)=>s.sendFile(path.join(dir,"manifest.webmanifest")));
+app.get("/sw.js",(q,s)=>s.sendFile(path.join(dir,"sw.js"))); 
 const has=x=>typeof x==="string"&&x.trim();
 app.get("/api/health",(q,s)=>s.json({ok:true,dvlaConfigured:!!has(process.env.DVLA_API_KEY),dvsaConfigured:!!(has(process.env.DVSA_CLIENT_ID)&&has(process.env.DVSA_CLIENT_SECRET)&&has(process.env.DVSA_TOKEN_URL)&&has(process.env.DVSA_API_KEY))}));
 app.post("/api/vehicle/:registration",async(q,s)=>{const reg=String(q.params.registration).toUpperCase().replace(/[^A-Z0-9]/g,"");if(reg.length<2||reg.length>8)return s.status(400).json({error:"Invalid registration"});const out={registration:reg,checkedAt:new Date().toISOString(),dvla:null,mot:null,plating:{status:"not_connected",message:"Full VTG plating certificate data needs a separately authorised source or verified document upload."},notices:[]};
