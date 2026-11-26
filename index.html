@@ -1,108 +1,38 @@
-<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#142b40"><link rel="manifest" href="/manifest.webmanifest"><title>HGV Check UK</title><style>
-*{box-sizing:border-box}body{margin:0;background:#f2f5f7;color:#172633;font:16px system-ui}header{background:#142b40;color:white;padding:22px 18px}h1{margin:18px 0 4px;font-size:27px}header p,.muted{color:#cbd9e2;font-size:13px}.muted{color:#657582;line-height:1.5}main{max-width:680px;margin:auto;padding:16px}.card{background:white;border:1px solid #dce4e9;border-radius:16px;padding:16px;margin-bottom:14px}h2{font-size:19px;margin:0 0 12px}.cam{position:relative;background:#101923;border-radius:12px;overflow:hidden;aspect-ratio:4/3}video{width:100%;height:100%;object-fit:cover}.frame{position:absolute;left:9%;top:34%;width:82%;height:32%;border:2px solid #ffdf35;border-radius:8px;box-shadow:0 0 0 999px #0005;pointer-events:none}.hint{position:absolute;bottom:8px;left:5px;right:5px;color:white;text-align:center;font-size:12px;text-shadow:0 1px 3px #000}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}button{padding:13px;border:0;border-radius:10px;background:#1d557d;color:white;font-weight:750;font-size:15px}button.alt{background:white;border:1px solid #b9cbd7;color:#1d557d}button:disabled{opacity:.45}.status{background:#f1f6f8;padding:11px;border-radius:9px;font-size:13px;line-height:1.5;margin-top:10px}label{display:block;margin:14px 0 6px;font-size:13px;font-weight:700}input{width:100%;padding:13px;border:1px solid #bdcbd4;border-radius:9px;font-size:21px;font-weight:800;letter-spacing:.08em;text-align:center;text-transform:uppercase}.plate{display:inline-block;background:#ffdf35;color:#111;border:2px solid #222;border-radius:7px;padding:7px 14px;font-size:25px;font-weight:900}.row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #dce4e9;padding:10px 0}.row span{color:#657582}.row strong{text-align:right;max-width:65%;overflow-wrap:anywhere}.hide{display:none!important}footer{text-align:center;color:#81909a;font-size:12px;padding:14px}</style></head><body>
-<header><b>🚛 HGV CHECK UK</b><h1>Automatic vehicle check</h1><p>Scan a registration. Vehicle lookup starts automatically.</p></header><main>
-<section class="card"><h2>Live number plate scanner</h2><div class="cam"><video id="video" autoplay playsinline muted></video><div class="frame"></div><div class="hint">Front or rear plate · 1–3 metres away</div></div><div class="grid"><button id="start">Start live scan</button><button id="stop" class="alt" disabled>Stop scan</button><button id="switch" class="alt">Switch camera</button><button id="torch" class="alt" disabled>Torch</button></div><div id="scanStatus" class="status">Allow camera access, then start. Hold the plate steady and straight in the yellow frame.</div></section>
-<section class="card"><h2>Recognised registration</h2><div id="plate" class="plate hide"></div><label for="reg">Registration (edit if needed)</label><input id="reg" maxlength="8" placeholder="AB12 CDE"><div class="grid"><button id="manual" class="alt">Check entered registration</button><button id="resume" class="alt">Resume scanning</button></div><div id="lookupStatus" class="status hide"></div></section>
-<section id="report" class="card hide"><h2>Vehicle report</h2><div id="reportReg" class="plate"></div><div id="reportBody"></div></section>
-<section class="card"><h2>Connection status</h2><div id="health" class="muted">Checking server…</div><p class="muted">Automatic lookup starts after the same standard UK registration is read in two consecutive scans with OCR confidence of at least 65%. This reduces false triggers but cannot guarantee accuracy.</p></section></main><footer>Prototype · Not an official DVLA/DVSA service</footer>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script><script>
-const $=id=>document.getElementById(id);let stream=null,facing="environment",scanning=false,busy=false,worker=null,timer=null,torch=false,last="",count=0,lastAuto="",looking=false;const pattern=/^[A-Z]{2}[0-9]{2}[A-Z]{3}$/;
-const clean=s=>String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"");function msg(s){$("scanStatus").textContent=s}function lookupMsg(s){$("lookupStatus").classList.remove("hide");$("lookupStatus").textContent=s}
-async function camera(){if(!navigator.mediaDevices?.getUserMedia){msg("Camera requires HTTPS and Safari permission. Enter a registration manually.");return}try{if(stream)stream.getTracks().forEach(t=>t.stop());stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080}}});$("video").srcObject=stream;await $("video").play();let caps=stream.getVideoTracks()[0].getCapabilities?.();$("torch").disabled=!(caps&&caps.torch);msg("Camera ready. Start scanning.");}catch(e){msg("Camera error: "+e.message+". Check Safari permission and HTTPS.");}}
-async function start(){if(!stream)await camera();if(!stream)return;scanning=true;$("start").disabled=true;$("stop").disabled=false;try{if(!worker){worker=await Tesseract.createWorker("eng",1);await worker.setParameters({tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"});}msg("Scanning live video…");loop();}catch(e){msg("OCR engine failed to load. Check internet and retry.");stop();}}
-function stop(){scanning=false;clearTimeout(timer);$("start").disabled=false;$("stop").disabled=true;}
-
-async function loop(){
-  if(!scanning || busy) return;
-
-  const v = $("video");
-
-  if(v.readyState < 2 || !v.videoWidth){
-    msg("Waiting for camera image...");
-    timer = setTimeout(loop,400);
-    return;
-  }
-
-  busy = true;
-
-  try {
-    const w = v.videoWidth;
-    const h = v.videoHeight;
-
-    // Match the yellow guide area more closely.
-    const sx = Math.floor(w * 0.09);
-    const sy = Math.floor(h * 0.34);
-    const cw = Math.floor(w * 0.82);
-    const ch = Math.floor(h * 0.32);
-
-    // Enlarge the image before OCR.
-    const scale = 4;
-    const c = document.createElement("canvas");
-    c.width = cw * scale;
-    c.height = ch * scale;
-
-    const ctx = c.getContext("2d", {willReadFrequently:true});
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(v,sx,sy,cw,ch,0,0,c.width,c.height);
-
-    // Improve contrast while retaining greyscale detail.
-    const img = ctx.getImageData(0,0,c.width,c.height);
-    const p = img.data;
-
-    for(let i=0;i<p.length;i+=4){
-      let grey = 0.299*p[i] + 0.587*p[i+1] + 0.114*p[i+2];
-      grey = Math.max(0,Math.min(255,(grey-128)*1.5+128));
-      p[i] = p[i+1] = p[i+2] = grey;
-    }
-
-    ctx.putImageData(img,0,0);
-
-    const result = await worker.recognize(c);
-    const text = clean(result.data.text);
-    const match = text.match(/[A-Z]{2}[0-9]{2}[A-Z]{3}/);
-    const confidence = Number(result.data.confidence || 0);
-
-    if(match && confidence >= 65){
-      const candidate = match[0];
-
-      count = candidate === last ? count + 1 : 1;
-      last = candidate;
-
-      $("reg").value = candidate;
-      $("plate").textContent = candidate;
-      $("plate").classList.remove("hide");
-
-      if(count >= 2 && candidate !== lastAuto && !looking){
-        lastAuto = candidate;
-        stop();
-        msg("Registration recognised. Starting vehicle lookup...");
-        await doLookup(candidate,"Automatic scan");
-        return;
-      }
-
-      msg("Possible registration: "+candidate+
-          " ("+Math.round(confidence)+"% confidence). Hold steady...");
-    } else {
-      last = "";
-      count = 0;
-      msg("Scanning plate image... keep the full plate inside the yellow frame.");
-    }
-
-  } catch(e) {
-    msg("Scanner error: "+e.message);
-  }
-
-  busy = false;
-
-  if(scanning) timer = setTimeout(loop,700);
-}
-
-async function doLookup(reg,source){if(looking)return;looking=true;lookupMsg(source+": "+reg+" — contacting vehicle data service…");$("report").classList.add("hide");try{let r=await fetch("/api/vehicle/"+encodeURIComponent(reg),{method:"POST"}),d=await r.json();if(!r.ok)throw Error(d.error||"Lookup failed");$("reportReg").textContent=reg;render(d);$("report").classList.remove("hide");lookupMsg(d.dvla||d.mot?"Response received. Review source data below.":"Plate recognised, but live data credentials are not connected or no data was returned.");$("report").scrollIntoView({behavior:"smooth"});}catch(e){lookupMsg("Recognised "+reg+", but lookup server is unavailable: "+e.message);}finally{looking=false;}}
-function row(k,v){let d=document.createElement("div"),a=document.createElement("span"),b=document.createElement("strong");d.className="row";a.textContent=k;b.textContent=v==null||v===""?"Not supplied":typeof v==="object"?JSON.stringify(v):String(v);d.append(a,b);return d;}
-function render(d){let box=$("reportBody");box.innerHTML="";let h=document.createElement("h3");h.textContent="DVLA vehicle details";box.append(h);if(d.dvla)Object.entries(d.dvla).forEach(([k,v])=>box.append(row(k,v)));else box.append(row("DVLA",d.notices.find(n=>n.source==="DVLA")?.message||"No response"));h=document.createElement("h3");h.textContent="DVSA MOT / annual test";box.append(h);box.append(row("MOT response",d.mot||d.notices.find(n=>n.source==="DVSA")?.message||"No response"));h=document.createElement("h3");h.textContent="VTG plating certificate";box.append(h);box.append(row("Certificate",d.plating?.message||"Not connected"));d.notices.forEach(n=>box.append(row(n.source,n.message)));}
-$("start").onclick=start;$("stop").onclick=()=>{stop();msg("Scanning stopped.")};$("switch").onclick=async()=>{facing=facing==="environment"?"user":"environment";await camera()};$("torch").onclick=async()=>{try{torch=!torch;await stream.getVideoTracks()[0].applyConstraints({advanced:[{torch}]});$("torch").textContent=torch?"Torch off":"Torch";}catch{msg("Torch not supported on this camera.");}};
-$("reg").oninput=e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9 ]/g,"");$("manual").onclick=()=>{let r=clean($("reg").value);if(!pattern.test(r)){alert("Enter a current-style UK registration, e.g. AB12 CDE.");return}lastAuto=r;stop();doLookup(r,"Manual check")};$("resume").onclick=()=>{last="";count=0;start()};
-fetch("/api/health").then(r=>r.json()).then(d=>$("health").textContent="DVLA "+(d.dvlaConfigured?"configured":"not configured")+" · DVSA "+(d.dvsaConfigured?"configured":"not configured")).catch(()=>$("health").textContent="Backend unavailable");
-window.addEventListener("pagehide",()=>{stop();stream?.getTracks().forEach(t=>t.stop())});if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#142b40"><link rel="manifest" href="/manifest.webmanifest"><title>HGV Check UK</title>
+<style>
+:root{--navy:#142b40;--blue:#1d557d;--bg:#f2f5f7;--ink:#172633;--muted:#637482;--line:#dce4e9;--yellow:#ffdf35;--red:#a52b2b;--green:#176b45}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,sans-serif}header{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 900px)/2));}header b{letter-spacing:.04em}header h1{font-size:27px;margin:17px 0 4px}header p{color:#cbd9e2;margin:0;font-size:14px}main{max-width:900px;margin:auto;padding:16px}.notice{background:#fff7d6;border:1px solid #eadb91;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.45;margin-bottom:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.tile,.panel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px}.tile{cursor:pointer;text-align:left;color:var(--ink);min-height:125px}.tile:focus,.tile:hover{outline:2px solid #9bb9ce}.tile .emoji{font-size:27px}.tile h2{font-size:17px;margin:8px 0 4px}.tile p{font-size:13px;color:var(--muted);margin:0;line-height:1.4}.panel{margin-bottom:14px}.hidden{display:none!important}h2{font-size:20px;margin:0 0 12px}h3{font-size:16px;margin:16px 0 8px}.muted{color:var(--muted);font-size:13px;line-height:1.5}label{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}input,select,textarea{width:100%;padding:12px;border:1px solid #bdcbd4;border-radius:9px;background:#fff;color:var(--ink);font:inherit}input.reg{text-transform:uppercase;font-size:22px;font-weight:800;letter-spacing:.08em;text-align:center}textarea{min-height:80px}button{border:0;border-radius:10px;padding:12px 15px;background:var(--blue);color:white;font-weight:750;font-size:14px;cursor:pointer}button.secondary{background:#fff;border:1px solid #b9cbd7;color:var(--blue)}button.danger{background:#fff0f0;color:var(--red);border:1px solid #e8bcbc}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.back{margin-bottom:12px}.status{background:#f1f6f8;padding:11px;border-radius:9px;font-size:13px;line-height:1.5;margin-top:10px}.status.good{background:#eaf6ef;color:var(--green)}.status.warn{background:#fff7e5;color:#795500}.list{display:grid;gap:9px}.item{border:1px solid var(--line);border-radius:10px;padding:12px}.item strong{display:block}.item small{color:var(--muted)}.check{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.check input{width:20px;height:20px;margin:0;flex:none}.pill{display:inline-block;border-radius:30px;background:#eaf1f5;padding:4px 9px;font-size:11px;font-weight:700}.toprow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed #b9cbd7;border-radius:10px}footer{text-align:center;color:#81909a;font-size:12px;padding:18px}@media(min-width:700px){header{padding-left:max(24px,calc((100% - 900px)/2));padding-right:max(24px,calc((100% - 900px)/2))}}
+</style></head><body>
+<header><b>🚛 HGV CHECK UK</b><h1 id="pageTitle">Your vehicle workspace</h1><p>Vehicle checks, inspections and fleet records in one place.</p></header>
+<main>
+<div class="notice"><strong>Prototype notice:</strong> Registration lookups use the connected government services only when valid API credentials are configured. Inspection and saved-vehicle records in this version are stored on this device/browser. They are not yet shared between users or businesses.</div>
+<section id="home">
+ <div class="grid">
+  <button class="tile" data-open="lookup"><span class="emoji">🚚</span><h2>HGV checks</h2><p>Enter a tractor unit or rigid HGV registration manually.</p></button>
+  <button class="tile" data-open="trailer"><span class="emoji">🚛</span><h2>Trailer checks</h2><p>Check and record a trailer by its registration.</p></button>
+  <button class="tile" data-open="daily"><span class="emoji">☑️</span><h2>Daily inspections</h2><p>Driver walkaround checks and defect reporting.</p></button>
+  <button class="tile" data-open="workshop"><span class="emoji">🛠️</span><h2>Workshop inspections</h2><p>Record maintenance findings, repairs and sign-off.</p></button>
+  <button class="tile" data-open="vehicles"><span class="emoji">📋</span><h2>My vehicles</h2><p>View locally saved HGVs and trailers.</p></button>
+  <button class="tile" data-open="fleet"><span class="emoji">🏢</span><h2>Fleet management</h2><p>Link a trailer to a regular tractor unit.</p></button>
+  <button class="tile" data-open="account"><span class="emoji">👤</span><h2>My account</h2><p>Account roles and business features planned.</p></button>
+ </div>
+</section>
+<section id="lookup" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>HGV registration check</h2><p class="muted">Enter the registration manually. Automatic ANPR is paused while the rest of the app is developed.</p><label for="hgvReg">HGV registration</label><input class="reg" id="hgvReg" maxlength="8" placeholder="AB12 CDE"><div class="actions"><button id="hgvCheck">Check vehicle</button><button class="secondary" id="saveHgv">Save vehicle</button></div><div id="hgvResult" class="status hidden" aria-live="polite"></div></div></section>
+<section id="trailer" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>Trailer registration check</h2><p class="muted">Enter a trailer registration to request available data. Not all trailers have the same public record coverage as powered vehicles.</p><label for="trailerReg">Trailer registration</label><input class="reg" id="trailerReg" maxlength="8" placeholder="AB12 CDE"><div class="actions"><button id="trailerCheck">Check trailer</button><button class="secondary" id="saveTrailer">Save trailer</button></div><div id="trailerResult" class="status hidden" aria-live="polite"></div></div></section>
+<section id="daily" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>Daily driver inspection</h2><p class="muted">Use this checklist as a record-keeping aid. It does not replace the operator's legally required inspection procedures.</p><label for="dailyReg">Vehicle or trailer registration</label><input id="dailyReg" class="reg" placeholder="AB12 CDE" maxlength="8"><label for="driverName">Driver name</label><input id="driverName" placeholder="Enter driver name"><label for="mileage">Odometer reading (if applicable)</label><input id="mileage" type="number" min="0" placeholder="Mileage"><div id="dailyChecks"></div><label for="dailyNotes">Defects / notes</label><textarea id="dailyNotes" placeholder="Describe any defects found. Include location and severity."></textarea><label for="dailyPhoto">Add photograph (optional)</label><input id="dailyPhoto" type="file" accept="image/*" capture="environment"><div class="actions"><button id="saveDaily">Save inspection on this device</button></div><div id="dailyStatus" class="status hidden"></div></div></section>
+<section id="workshop" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>Workshop inspection / repair</h2><label for="workReg">Vehicle or trailer registration</label><input id="workReg" class="reg" maxlength="8" placeholder="AB12 CDE"><label for="mechanic">Mechanic / technician</label><input id="mechanic" placeholder="Name"><label for="workType">Work type</label><select id="workType"><option>Workshop inspection</option><option>Defect diagnosis</option><option>Repair completed</option><option>Preventative maintenance</option></select><label for="workFindings">Findings and work carried out</label><textarea id="workFindings" placeholder="Describe findings, parts and repairs..."></textarea><label for="workStatus">Repair status</label><select id="workStatus"><option>Awaiting repair</option><option>Work in progress</option><option>Repaired - requires sign-off</option><option>Completed and signed off</option></select><div class="actions"><button id="saveWorkshop">Save workshop record</button></div><div id="workStatusMsg" class="status hidden"></div></div></section>
+<section id="vehicles" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><div class="toprow"><h2>My saved vehicles</h2><span class="pill">This device only</span></div><div id="vehicleList" class="list"></div></div><div class="panel"><h2>Recent inspection records</h2><div id="inspectionList" class="list"></div></div></section>
+<section id="fleet" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>Link a trailer to a tractor unit</h2><p class="muted">Local prototype record only. Business-wide sharing and user permissions are planned for a later stage.</p><label for="tractorReg">Tractor unit registration</label><input id="tractorReg" class="reg" maxlength="8" placeholder="AB12 CDE"><label for="fleetTrailer">Trailer registration</label><input id="fleetTrailer" class="reg" maxlength="8" placeholder="CD34 EFG"><div class="actions"><button id="linkTrailer">Save assignment</button></div><div id="assignmentList" class="list" style="margin-top:12px"></div></div></section>
+<section id="account" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>Account type</h2><p class="muted">Role-based accounts are planned. This prototype does not yet create logins or enforce permissions.</p><div class="list"><div class="item"><strong>Personal / private owner</strong><small>Basic checks and personal vehicle records.</small></div><div class="item"><strong>Driver</strong><small>Daily inspections and defect reporting.</small></div><div class="item"><strong>Mechanic</strong><small>Workshop inspections and repair records.</small></div><div class="item"><strong>Fleet operator / business administrator</strong><small>Fleet, users, vehicles, trailers and business settings.</small></div></div></div></section>
+</main><footer>HGV Check UK · Development prototype · Not an official DVLA or DVSA service</footer>
+<script>
+const $=id=>document.getElementById(id);const clean=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const uk=/^[A-Z]{2}[0-9]{2}[A-Z]{3}$/;const read=k=>{try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return[]}};const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+function show(id){$('home').classList.toggle('hidden',id!=='home');document.querySelectorAll('.view').forEach(x=>x.classList.add('hidden'));if(id!=='home')$(id).classList.remove('hidden');$('pageTitle').textContent=({home:'Your vehicle workspace',lookup:'HGV checks',trailer:'Trailer checks',daily:'Daily driver inspections',workshop:'Workshop inspections',vehicles:'My vehicles',fleet:'Fleet management',account:'My account'})[id]||'HGV Check UK';if(id==='vehicles')renderLists();if(id==='fleet')renderAssignments();window.scrollTo(0,0)}document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>show(b.dataset.open));document.querySelectorAll('[data-home]').forEach(b=>b.onclick=()=>show('home'));
+async function check(reg,resultId,type){const regn=clean(reg);const box=$(resultId);box.classList.remove('hidden');if(!uk.test(regn)){box.textContent='Please enter a valid current-style UK registration, for example AB12 CDE. Some older or specialist registrations may not be supported by this prototype.';box.className='status warn';return}box.textContent='Sending registration to the vehicle lookup service…';box.className='status';try{const r=await fetch('/api/vehicle/'+encodeURIComponent(regn),{method:'POST',headers:{'Content-Type':'application/json'}});const d=await r.json();if(!r.ok)throw Error(d.error||'Lookup failed');const lines=[];if(d.dvla){lines.push('DVLA data received.');for(const [k,v] of Object.entries(d.dvla))lines.push(k+': '+(typeof v==='object'?JSON.stringify(v):v))}else lines.push('DVLA: '+(d.notices.find(n=>n.source==='DVLA')?.message||'No data returned'));if(d.mot)lines.push('MOT / annual test data received: '+JSON.stringify(d.mot));else lines.push('DVSA: '+(d.notices.find(n=>n.source==='DVSA')?.message||'No data returned'));lines.push('VTG plating certificate: '+(d.plating?.message||'Not connected'));box.textContent=type+' '+regn+'\n'+lines.join('\n');box.className='status '+(d.dvla||d.mot?'good':'warn')}catch(e){box.textContent='Lookup service error: '+e.message;box.className='status warn'}}
+$('hgvCheck').onclick=()=>check($('hgvReg').value,'hgvResult','HGV');$('trailerCheck').onclick=()=>check($('trailerReg').value,'trailerResult','Trailer');function saveVehicle(reg,type){const r=clean(reg);if(!uk.test(r)){alert('Enter a valid current-style UK registration first.');return}const a=read('hcu_vehicles');if(!a.some(x=>x.reg===r&&x.type===type))a.unshift({reg:r,type,added:new Date().toISOString()});write('hcu_vehicles',a);alert(type+' '+r+' saved on this device.')} $('saveHgv').onclick=()=>saveVehicle($('hgvReg').value,'HGV');$('saveTrailer').onclick=()=>saveVehicle($('trailerReg').value,'Trailer');
+const checks=['Brakes and parking brake','Steering and suspension','Tyres, wheels and fixings','Lights, indicators and reflectors','Mirrors, glass and visibility','Wipers and washers','Horn and warning devices','Coupling / fifth wheel / connections (where applicable)','Bodywork, doors and load security','Registration plates and markings','Leaks, fluid levels and exhaust','Safety equipment and emergency kit'];$('dailyChecks').innerHTML='<h3>Walkaround checklist</h3>'+checks.map((x,i)=>`<label class="check"><input type="checkbox" data-check="${i}"><span>${x}</span></label>`).join('');$('saveDaily').onclick=()=>{const reg=clean($('dailyReg').value);if(!reg){alert('Enter the vehicle or trailer registration.');return}const rec={kind:'Daily driver inspection',reg,person:$('driverName').value,mileage:$('mileage').value,checks:checks.map((label,i)=>({label,checked:document.querySelector(`[data-check="${i}"]`).checked})),notes:$('dailyNotes').value,photo:$('dailyPhoto').files[0]?.name||'',date:new Date().toISOString()};const a=read('hcu_inspections');a.unshift(rec);write('hcu_inspections',a);$('dailyStatus').textContent='Inspection saved on this device. Checked '+rec.checks.filter(x=>x.checked).length+' of '+checks.length+' items. Any defect must be assessed and dealt with under your operator procedures.';$('dailyStatus').classList.remove('hidden')};
+$('saveWorkshop').onclick=()=>{const reg=clean($('workReg').value);if(!reg){alert('Enter a vehicle or trailer registration.');return}const rec={kind:$('workType').value,reg,person:$('mechanic').value,findings:$('workFindings').value,status:$('workStatus').value,date:new Date().toISOString()};const a=read('hcu_inspections');a.unshift(rec);write('hcu_inspections',a);$('workStatusMsg').textContent='Workshop record saved on this device.';$('workStatusMsg').classList.remove('hidden')};
+function renderLists(){const vs=read('hcu_vehicles');$('vehicleList').innerHTML=vs.length?vs.map(v=>`<div class="item"><strong>${v.reg} <span class="pill">${v.type}</span></strong><small>Saved ${new Date(v.added).toLocaleString()}</small></div>`).join(''):'<div class="empty">No saved vehicles yet. Add one using HGV checks or Trailer checks.</div>';const ins=read('hcu_inspections');$('inspectionList').innerHTML=ins.length?ins.slice(0,20).map(x=>`<div class="item"><strong>${x.kind} · ${x.reg}</strong><small>${new Date(x.date).toLocaleString()} · ${x.person||'No name recorded'}${x.status?' · '+x.status:''}</small></div>`).join(''):'<div class="empty">No inspection records yet.</div>'}
+$('linkTrailer').onclick=()=>{const tractor=clean($('tractorReg').value),trailer=clean($('fleetTrailer').value);if(!uk.test(tractor)||!uk.test(trailer)){alert('Enter valid current-style UK registrations for both vehicles.');return}const a=read('hcu_assignments');a.unshift({tractor,trailer,date:new Date().toISOString()});write('hcu_assignments',a);renderAssignments();alert('Trailer assignment saved on this device.')};function renderAssignments(){const a=read('hcu_assignments');$('assignmentList').innerHTML=a.length?a.map(x=>`<div class="item"><strong>${x.tractor} ↔ ${x.trailer}</strong><small>Saved ${new Date(x.date).toLocaleString()}</small></div>`).join(''):'<div class="empty">No trailer assignments saved.</div>'}
+if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>
