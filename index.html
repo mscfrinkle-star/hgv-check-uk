@@ -1,55 +1,592 @@
 <!doctype html>
-<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#142b40"><link rel="manifest" href="/manifest.webmanifest"><title>HGV Check UK</title>
+
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#142b40">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>HGV Check UK</title>
 <style>
-:root{--navy:#142b40;--blue:#1d557d;--bg:#f2f5f7;--ink:#172633;--muted:#637482;--line:#dce4e9;--yellow:#ffdf35;--red:#a52b2b;--green:#176b45}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,sans-serif}header{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 900px)/2));}header b{letter-spacing:.04em}header h1{font-size:27px;margin:17px 0 4px}header p{color:#cbd9e2;margin:0;font-size:14px}main{max-width:900px;margin:auto;padding:16px}.notice{background:#fff7d6;border:1px solid #eadb91;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.45;margin-bottom:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.tile,.panel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px}.tile{cursor:pointer;text-align:left;color:var(--ink);min-height:125px}.tile:focus,.tile:hover{outline:2px solid #9bb9ce}.tile .emoji{font-size:27px}.tile h2{font-size:17px;margin:8px 0 4px}.tile p{font-size:13px;color:var(--muted);margin:0;line-height:1.4}.panel{margin-bottom:14px}.hidden{display:none!important}h2{font-size:20px;margin:0 0 12px}h3{font-size:16px;margin:16px 0 8px}.muted{color:var(--muted);font-size:13px;line-height:1.5}label{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}input,select,textarea{width:100%;padding:12px;border:1px solid #bdcbd4;border-radius:9px;background:#fff;color:var(--ink);font:inherit}input.reg{text-transform:uppercase;font-size:22px;font-weight:800;letter-spacing:.08em;text-align:center}textarea{min-height:80px}button{border:0;border-radius:10px;padding:12px 15px;background:var(--blue);color:white;font-weight:750;font-size:14px;cursor:pointer}button.secondary{background:#fff;border:1px solid #b9cbd7;color:var(--blue)}button.danger{background:#fff0f0;color:var(--red);border:1px solid #e8bcbc}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.back{margin-bottom:12px}.status{background:#f1f6f8;padding:11px;border-radius:9px;font-size:13px;line-height:1.5;margin-top:10px}.status.good{background:#eaf6ef;color:var(--green)}.status.warn{background:#fff7e5;color:#795500}.list{display:grid;gap:9px}.item{border:1px solid var(--line);border-radius:10px;padding:12px}.item strong{display:block}.item small{color:var(--muted)}.check{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.check input{width:20px;height:20px;margin:0;flex:none}.pill{display:inline-block;border-radius:30px;background:#eaf1f5;padding:4px 9px;font-size:11px;font-weight:700}.toprow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed #b9cbd7;border-radius:10px}footer{text-align:center;color:#81909a;font-size:12px;padding:18px}@media(min-width:700px){header{padding-left:max(24px,calc((100% - 900px)/2));padding-right:max(24px,calc((100% - 900px)/2))}}
-</style></head><body>
-<header><b>🚛 HGV CHECK UK</b><h1 id="pageTitle">Your vehicle workspace</h1><p>Vehicle checks, inspections and fleet records in one place.</p></header>
+:root{--navy:#142b40;--blue:#1d557d;--bg:#f2f5f7;--ink:#172633;--muted:#637482;--line:#dce4e9;--yellow:#ffdf35;--red:#a52b2b;--green:#176b45}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 900px)/2))}
+header b{letter-spacing:.04em}
+header h1{font-size:27px;margin:17px 0 4px}
+header p{color:#cbd9e2;margin:0;font-size:14px}
+main{max-width:900px;margin:auto;padding:16px}
+.notice{background:#fff7d6;border:1px solid #eadb91;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.45;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tile,.panel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px}
+.tile{cursor:pointer;text-align:left;color:var(--ink);min-height:125px}
+.tile:focus,.tile:hover{outline:2px solid #9bb9ce}
+.tile .emoji{font-size:27px}
+.tile h2{font-size:17px;margin:8px 0 4px}
+.tile p{font-size:13px;color:var(--muted);margin:0;line-height:1.4}
+.panel{margin-bottom:14px}
+.hidden{display:none!important}
+h2{font-size:20px;margin:0 0 12px}
+h3{font-size:16px;margin:16px 0 8px}
+.muted{color:var(--muted);font-size:13px;line-height:1.5}
+label{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #bdcbd4;border-radius:9px;background:#fff;color:var(--ink);font:inherit}
+input.reg{text-transform:uppercase;font-size:22px;font-weight:800;letter-spacing:.08em;text-align:center}
+textarea{min-height:80px}
+button{border:0;border-radius:10px;padding:12px 15px;background:var(--blue);color:white;font-weight:750;font-size:14px;cursor:pointer}
+button.secondary{background:#fff;border:1px solid #b9cbd7;color:var(--blue)}
+button.danger{background:#fff0f0;color:var(--red);border:1px solid #e8bcbc}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.back{margin-bottom:12px}
+.status{background:#f1f6f8;padding:11px;border-radius:9px;font-size:13px;line-height:1.5;margin-top:10px}
+.status.good{background:#eaf6ef;color:var(--green)}
+.status.warn{background:#fff7e5;color:#795500}
+.list{display:grid;gap:9px}
+.item{border:1px solid var(--line);border-radius:10px;padding:12px}
+.item strong{display:block}
+.item small{color:var(--muted)}
+.check{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.check input{width:20px;height:20px;margin:0;flex:none}
+.pill{display:inline-block;border-radius:30px;background:#eaf1f5;padding:4px 9px;font-size:11px;font-weight:700}
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed #b9cbd7;border-radius:10px}
+footer{text-align:center;color:#81909a;font-size:12px;padding:18px}
+@media(min-width:700px){
+header{padding-left:max(24px,calc((100% - 900px)/2));padding-right:max(24px,calc((100% - 900px)/2))}
+}
+
+
+/* Mobile-first vehicle report */
+.report{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;overflow:hidden}
+.report-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.report-reg{font-size:27px;font-weight:850;letter-spacing:.09em;line-height:1.15;margin:2px 0 5px}
+.report-sub{color:var(--muted);font-size:14px}
+.report-badge{display:inline-flex;border-radius:30px;padding:6px 10px;font-size:12px;font-weight:800;background:#fff5df;color:#795500}
+.report-badge.good{background:#eaf6ef;color:var(--green)}
+.report-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:15px 0}
+.report-stat,.report-field{background:#f3f6f8;border:1px solid #e7edf1;border-radius:11px;padding:11px;min-width:0}
+.report-stat small,.report-field small{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+.report-stat strong,.report-field strong{display:block;font-size:14px;overflow-wrap:anywhere}
+.report-stat span{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+.report-section{border-top:1px solid var(--line);padding-top:13px;margin-top:13px}
+.report-section h3{margin:0 0 9px;font-size:15px}
+.report-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.report-field{background:#fafbfc}
+.report-field small{font-size:11px}
+.report-note{border-radius:10px;padding:11px 12px;background:#f3f6f8;font-size:13px;line-height:1.45;margin-top:9px}
+.report-note.good{background:#eaf6ef;color:var(--green)}
+.report-note.warn{background:#fff7e5;color:#795500}
+.report-extra{margin-top:10px}
+.report-extra summary{cursor:pointer;color:var(--blue);font-weight:750;font-size:13px;padding:8px 0}
+.report-extra pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace;background:#f5f7f8;padding:10px;border-radius:9px;margin:4px 0}
+@media(min-width:600px){
+.report{padding:20px}
+.report-details{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+</style>
+
+</head>
+<body>
+<header>
+<b>🚛 HGV CHECK UK</b>
+<h1 id="pageTitle">Your vehicle workspace</h1>
+<p>Vehicle checks, inspections and fleet records in one place.</p>
+</header>
 <main>
 <div class="notice"><strong>Prototype notice:</strong> Registration lookups use the connected government services only when valid API credentials are configured. Inspection and saved-vehicle records in this version are stored on this device/browser. They are not yet shared between users or businesses.</div>
+
+
 <section id="home">
- <div class="grid">
-  <button class="tile" data-open="lookup"><span class="emoji">🚚</span><h2>HGV checks</h2><p>Enter a tractor unit or rigid HGV registration manually.</p></button>
-  <button class="tile" data-open="trailer"><span class="emoji">🚛</span><h2>Trailer checks</h2><p>Check and record a trailer by its registration.</p></button>
-  <button class="tile" data-open="daily"><span class="emoji">☑️</span><h2>Daily inspections</h2><p>Driver walkaround checks and defect reporting.</p></button>
-  <button class="tile" data-open="workshop"><span class="emoji">🛠️</span><h2>Workshop inspections</h2><p>Record maintenance findings, repairs and sign-off.</p></button>
-  <button class="tile" data-open="vehicles"><span class="emoji">📋</span><h2>My vehicles</h2><p>View locally saved HGVs and trailers.</p></button>
-  <button class="tile" data-open="fleet"><span class="emoji">🏢</span><h2>Fleet management</h2><p>Link a trailer to a regular tractor unit.</p></button>
-  <button class="tile" data-open="calendar"><span class="emoji">📅</span><h2>Maintenance calendar</h2><p>Record due dates and see upcoming or overdue reminders.</p></button>
-  <button class="tile" data-open="account"><span class="emoji">👤</span><h2>My account</h2><p>Account roles and business features planned.</p></button>
- </div>
+<div class="grid">
+<button class="tile" data-open="lookup"><span class="emoji">🚚</span><h2>HGV checks</h2><p>Enter a tractor unit or rigid HGV registration manually.</p></button>
+<button class="tile" data-open="trailer"><span class="emoji">🚛</span><h2>Trailer checks</h2><p>Check and record a trailer by its registration.</p></button>
+<button class="tile" data-open="daily"><span class="emoji">☑️</span><h2>Daily inspections</h2><p>Driver walkaround checks and defect reporting.</p></button>
+<button class="tile" data-open="workshop"><span class="emoji">🛠️</span><h2>Workshop inspections</h2><p>Record maintenance findings, repairs and sign-off.</p></button>
+<button class="tile" data-open="vehicles"><span class="emoji">📋</span><h2>My vehicles</h2><p>View locally saved HGVs and trailers.</p></button>
+<button class="tile" data-open="fleet"><span class="emoji">🏢</span><h2>Fleet management</h2><p>Link a trailer to a regular tractor unit.</p></button>
+<button class="tile" data-open="calendar"><span class="emoji">📅</span><h2>Maintenance calendar</h2><p>Record due dates and see upcoming or overdue reminders.</p></button>
+<button class="tile" data-open="account"><span class="emoji">👤</span><h2>My account</h2><p>Account roles and business features planned.</p></button>
+</div>
 </section>
-<section id="lookup" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>HGV registration check</h2><p class="muted">Enter the registration manually. Automatic ANPR is paused while the rest of the app is developed.</p><label for="hgvReg">HGV registration</label><input class="reg" id="hgvReg" maxlength="8" placeholder="AB12 CDE"><div class="actions"><button id="hgvCheck">Check vehicle</button><button class="secondary" id="saveHgv">Save vehicle</button></div><div id="hgvResult" class="status hidden" aria-live="polite"></div></div></section>
-<section id="trailer" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>Trailer registration check</h2><p class="muted">Enter a trailer registration to request available data. Not all trailers have the same public record coverage as powered vehicles.</p><label for="trailerReg">Trailer registration</label><input class="reg" id="trailerReg" maxlength="8" placeholder="AB12 CDE"><div class="actions"><button id="trailerCheck">Check trailer</button><button class="secondary" id="saveTrailer">Save trailer</button></div><div id="trailerResult" class="status hidden" aria-live="polite"></div></div></section>
-<section id="daily" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>Daily driver inspection</h2><p class="muted">Use this checklist as a record-keeping aid. It does not replace the operator's legally required inspection procedures.</p><label for="dailyReg">Vehicle or trailer registration</label><input id="dailyReg" class="reg" placeholder="AB12 CDE" maxlength="8"><label for="driverName">Driver name</label><input id="driverName" placeholder="Enter driver name"><label for="mileage">Odometer reading (if applicable)</label><input id="mileage" type="number" min="0" placeholder="Mileage"><div id="dailyChecks"></div><label for="dailyNotes">Defects / notes</label><textarea id="dailyNotes" placeholder="Describe any defects found. Include location and severity."></textarea><label for="dailyPhoto">Add photograph (optional)</label><input id="dailyPhoto" type="file" accept="image/*" capture="environment"><div class="actions"><button id="saveDaily">Save inspection on this device</button></div><div id="dailyStatus" class="status hidden"></div></div></section>
-<section id="workshop" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>Workshop inspection / repair</h2><label for="workReg">Vehicle or trailer registration</label><input id="workReg" class="reg" maxlength="8" placeholder="AB12 CDE"><label for="mechanic">Mechanic / technician</label><input id="mechanic" placeholder="Name"><label for="workType">Work type</label><select id="workType"><option>Workshop inspection</option><option>Defect diagnosis</option><option>Repair completed</option><option>Preventative maintenance</option></select><label for="workFindings">Findings and work carried out</label><textarea id="workFindings" placeholder="Describe findings, parts and repairs..."></textarea><label for="workStatus">Repair status</label><select id="workStatus"><option>Awaiting repair</option><option>Work in progress</option><option>Repaired - requires sign-off</option><option>Completed and signed off</option></select><div class="actions"><button id="saveWorkshop">Save workshop record</button></div><div id="workStatusMsg" class="status hidden"></div></div></section>
-<section id="vehicles" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><div class="toprow"><h2>My saved vehicles</h2><span class="pill">This device only</span></div><div id="vehicleList" class="list"></div></div><div class="panel"><h2>Recent inspection records</h2><div id="inspectionList" class="list"></div></div></section>
-<section id="fleet" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>Link a trailer to a tractor unit</h2><p class="muted">Local prototype record only. Business-wide sharing and user permissions are planned for a later stage.</p><label for="tractorReg">Tractor unit registration</label><input id="tractorReg" class="reg" maxlength="8" placeholder="AB12 CDE"><label for="fleetTrailer">Trailer registration</label><input id="fleetTrailer" class="reg" maxlength="8" placeholder="CD34 EFG"><div class="actions"><button id="linkTrailer">Save assignment</button></div><div id="assignmentList" class="list" style="margin-top:12px"></div></div></section>
-<section id="calendar" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>Maintenance calendar & reminders</h2><p class="muted">Record maintenance and document due dates. This prototype shows reminders in this browser only; it does not yet send email or push notifications.</p><div id="reminderSummary" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin:12px 0"></div><h3>Add a reminder</h3><label for="remReg">Vehicle or trailer registration</label><input id="remReg" class="reg" maxlength="8" placeholder="AB12 CDE"><label for="remType">Reminder type</label><select id="remType"><option>MOT / annual test</option><option>Safety inspection</option><option>Service / preventative maintenance</option><option>VTG / plating document</option><option>Insurance</option><option>Other document expiry</option><option>Other maintenance</option></select><label for="remDate">Due date</label><input id="remDate" type="date"><label for="remNotes">Notes (optional)</label><textarea id="remNotes" placeholder="For example, inspection booking or document details"></textarea><div class="actions"><button id="addReminder">Save reminder</button></div><div id="remStatus" class="status hidden"></div></div><div class="panel"><div class="toprow"><h2>Upcoming and overdue</h2><span class="pill">This device only</span></div><div id="reminderList" class="list"></div></div></section>
-<section id="account" class="view hidden"><button class="secondary back" data-home>← Home</button><div class="panel"><h2>Account type</h2><p class="muted">Role-based accounts are planned. This prototype does not yet create logins or enforce permissions.</p><div class="list"><div class="item"><strong>Personal / private owner</strong><small>Basic checks and personal vehicle records.</small></div><div class="item"><strong>Driver</strong><small>Daily inspections and defect reporting.</small></div><div class="item"><strong>Mechanic</strong><small>Workshop inspections and repair records.</small></div><div class="item"><strong>Fleet operator / business administrator</strong><small>Fleet, users, vehicles, trailers and business settings.</small></div></div></div></section>
-</main><footer>HGV Check UK · Development prototype · Not an official DVLA or DVSA service</footer>
+
+
+<section id="lookup" class="view hidden">
+<button class="secondary back" data-home>← Home</button>
+<div class="panel">
+<h2>HGV registration check</h2>
+<p class="muted">Enter the registration manually. Automatic ANPR is paused while the rest of the app is developed.</p>
+<label for="hgvReg">HGV registration</label>
+<input class="reg" id="hgvReg" maxlength="8" placeholder="AB12 CDE">
+<div class="actions">
+<button id="hgvCheck">Check vehicle</button>
+<button class="secondary" id="saveHgv">Save vehicle</button>
+</div>
+<div id="hgvResult" class="status hidden" aria-live="polite"></div>
+</div>
+</section>
+
+
+<section id="trailer" class="view hidden">
+<button class="secondary back" data-home>← Home</button>
+<div class="panel">
+<h2>Trailer registration check</h2>
+<p class="muted">Enter a trailer registration to request available data. Not all trailers have the same public record coverage as powered vehicles.</p>
+<label for="trailerReg">Trailer registration</label>
+<input class="reg" id="trailerReg" maxlength="8" placeholder="AB12 CDE">
+<div class="actions">
+<button id="trailerCheck">Check trailer</button>
+<button class="secondary" id="saveTrailer">Save trailer</button>
+</div>
+<div id="trailerResult" class="status hidden" aria-live="polite"></div>
+</div>
+</section>
+
+
+<section id="daily" class="view hidden">
+<button class="secondary back" data-home>← Home</button>
+<div class="panel">
+<h2>Daily driver inspection</h2>
+<p class="muted">Use this checklist as a record-keeping aid. It does not replace the operator's legally required inspection procedures.</p>
+<label for="dailyReg">Vehicle or trailer registration</label>
+<input id="dailyReg" class="reg" placeholder="AB12 CDE" maxlength="8">
+<label for="driverName">Driver name</label>
+<input id="driverName" placeholder="Enter driver name">
+<label for="mileage">Odometer reading (if applicable)</label>
+<input id="mileage" type="number" min="0" placeholder="Mileage">
+<div id="dailyChecks"></div>
+<label for="dailyNotes">Defects / notes</label>
+<textarea id="dailyNotes" placeholder="Describe any defects found. Include location and severity."></textarea>
+<label for="dailyPhoto">Add photograph (optional)</label>
+<input id="dailyPhoto" type="file" accept="image/*" capture="environment">
+<div class="actions"><button id="saveDaily">Save inspection on this device</button></div>
+<div id="dailyStatus" class="status hidden"></div>
+</div>
+</section>
+
+
+<section id="workshop" class="view hidden">
+<button class="secondary back" data-home>← Home</button>
+<div class="panel">
+<h2>Workshop inspection / repair</h2>
+<label for="workReg">Vehicle or trailer registration</label>
+<input id="workReg" class="reg" maxlength="8" placeholder="AB12 CDE">
+<label for="mechanic">Mechanic / technician</label>
+<input id="mechanic" placeholder="Name">
+<label for="workType">Work type</label>
+<select id="workType">
+<option>Workshop inspection</option>
+<option>Defect diagnosis</option>
+<option>Repair completed</option>
+<option>Preventative maintenance</option>
+</select>
+<label for="workFindings">Findings and work carried out</label>
+<textarea id="workFindings" placeholder="Describe findings, parts and repairs..."></textarea>
+<label for="workStatus">Repair status</label>
+<select id="workStatus">
+<option>Awaiting repair</option>
+<option>Work in progress</option>
+<option>Repaired - requires sign-off</option>
+<option>Completed and signed off</option>
+</select>
+<div class="actions"><button id="saveWorkshop">Save workshop record</button></div>
+<div id="workStatusMsg" class="status hidden"></div>
+</div>
+</section>
+
+
+<section id="vehicles" class="view hidden">
+<button class="secondary back" data-home>← Home</button>
+<div class="panel">
+<div class="toprow"><h2>My saved vehicles</h2><span class="pill">This device only</span></div>
+<div id="vehicleList" class="list"></div>
+</div>
+<div class="panel">
+<h2>Recent inspection records</h2>
+<div id="inspectionList" class="list"></div>
+</div>
+</section>
+
+
+<section id="fleet" class="view hidden">
+<button class="secondary back" data-home>← Home</button>
+<div class="panel">
+<h2>Link a trailer to a tractor unit</h2>
+<p class="muted">Local prototype record only. Business-wide sharing and user permissions are planned for a later stage.</p>
+<label for="tractorReg">Tractor unit registration</label>
+<input id="tractorReg" class="reg" maxlength="8" placeholder="AB12 CDE">
+<label for="fleetTrailer">Trailer registration</label>
+<input id="fleetTrailer" class="reg" maxlength="8" placeholder="CD34 EFG">
+<div class="actions"><button id="linkTrailer">Save assignment</button></div>
+<div id="assignmentList" class="list" style="margin-top:12px"></div>
+</div>
+</section>
+
+
+<section id="calendar" class="view hidden">
+<button class="secondary back" data-home>← Home</button>
+<div class="panel">
+<h2>Maintenance calendar & reminders</h2>
+<p class="muted">Record maintenance and document due dates. This prototype shows reminders in this browser only; it does not yet send email or push notifications.</p>
+<div id="reminderSummary" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin:12px 0"></div>
+<h3>Add a reminder</h3>
+<label for="remReg">Vehicle or trailer registration</label>
+<input id="remReg" class="reg" maxlength="8" placeholder="AB12 CDE">
+<label for="remType">Reminder type</label>
+<select id="remType">
+<option>MOT / annual test</option>
+<option>Safety inspection</option>
+<option>Service / preventative maintenance</option>
+<option>VTG / plating document</option>
+<option>Insurance</option>
+<option>Other document expiry</option>
+<option>Other maintenance</option>
+</select>
+<label for="remDate">Due date</label>
+<input id="remDate" type="date">
+<label for="remNotes">Notes (optional)</label>
+<textarea id="remNotes" placeholder="For example, inspection booking or document details"></textarea>
+<div class="actions"><button id="addReminder">Save reminder</button></div>
+<div id="remStatus" class="status hidden"></div>
+</div>
+<div class="panel">
+<div class="toprow"><h2>Upcoming and overdue</h2><span class="pill">This device only</span></div>
+<div id="reminderList" class="list"></div>
+</div>
+</section>
+
+
+<section id="account" class="view hidden">
+<button class="secondary back" data-home>← Home</button>
+<div class="panel">
+<h2>Account type</h2>
+<p class="muted">Role-based accounts are planned. This prototype does not yet create logins or enforce permissions.</p>
+<div class="list">
+<div class="item"><strong>Personal / private owner</strong><small>Basic checks and personal vehicle records.</small></div>
+<div class="item"><strong>Driver</strong><small>Daily inspections and defect reporting.</small></div>
+<div class="item"><strong>Mechanic</strong><small>Workshop inspections and repair records.</small></div>
+<div class="item"><strong>Fleet operator / business administrator</strong><small>Fleet, users, vehicles, trailers and business settings.</small></div>
+</div>
+</div>
+</section>
+</main>
+
+
+<footer>HGV Check UK · Development prototype · Not an official DVLA or DVSA service</footer>
+
+
 <script>
-const $=id=>document.getElementById(id);const clean=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const uk=/^[A-Z]{2}[0-9]{2}[A-Z]{3}$/;const read=k=>{try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return[]}};const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-function show(id){$('home').classList.toggle('hidden',id!=='home');document.querySelectorAll('.view').forEach(x=>x.classList.add('hidden'));if(id!=='home')$(id).classList.remove('hidden');$('pageTitle').textContent=({home:'Your vehicle workspace',lookup:'HGV checks',trailer:'Trailer checks',daily:'Daily driver inspections',workshop:'Workshop inspections',vehicles:'My vehicles',fleet:'Fleet management',account:'My account',calendar:'Maintenance calendar'})[id]||'HGV Check UK';if(id==='vehicles')renderLists();if(id==='fleet')renderAssignments();if(id==='calendar')renderCalendar();window.scrollTo(0,0)}document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>show(b.dataset.open));document.querySelectorAll('[data-home]').forEach(b=>b.onclick=()=>show('home'));
-async function check(reg,resultId,type){const regn=clean(reg);const box=$(resultId);box.classList.remove('hidden');if(!uk.test(regn)){box.textContent='Please enter a valid current-style UK registration, for example AB12 CDE. Some older or specialist registrations may not be supported by this prototype.';box.className='status warn';return}box.textContent='Sending registration to the vehicle lookup service…';box.className='status';try{const r=await fetch('/api/vehicle/'+encodeURIComponent(regn),{method:'POST',headers:{'Content-Type':'application/json'}});const d=await r.json();if(!r.ok)throw Error(d.error||'Lookup failed');const lines=[];if(d.dvla){lines.push('DVLA data received.');for(const [k,v] of Object.entries(d.dvla))lines.push(k+': '+(typeof v==='object'?JSON.stringify(v):v))}else lines.push('DVLA: '+(d.notices.find(n=>n.source==='DVLA')?.message||'No data returned'));if(d.mot)lines.push('MOT / annual test data received: '+JSON.stringify(d.mot));else lines.push('DVSA: '+(d.notices.find(n=>n.source==='DVSA')?.message||'No data returned'));lines.push('VTG plating certificate: '+(d.plating?.message||'Not connected'));box.textContent=type+' '+regn+'\n'+lines.join('\n');box.className='status '+(d.dvla||d.mot?'good':'warn')}catch(e){box.textContent='Lookup service error: '+e.message;box.className='status warn'}}
-$('hgvCheck').onclick=()=>check($('hgvReg').value,'hgvResult','HGV');$('trailerCheck').onclick=()=>check($('trailerReg').value,'trailerResult','Trailer');function saveVehicle(reg,type){const r=clean(reg);if(!uk.test(r)){alert('Enter a valid current-style UK registration first.');return}const a=read('hcu_vehicles');if(!a.some(x=>x.reg===r&&x.type===type))a.unshift({reg:r,type,added:new Date().toISOString()});write('hcu_vehicles',a);alert(type+' '+r+' saved on this device.')} $('saveHgv').onclick=()=>saveVehicle($('hgvReg').value,'HGV');$('saveTrailer').onclick=()=>saveVehicle($('trailerReg').value,'Trailer');
-const checks=['Brakes and parking brake','Steering and suspension','Tyres, wheels and fixings','Lights, indicators and reflectors','Mirrors, glass and visibility','Wipers and washers','Horn and warning devices','Coupling / fifth wheel / connections (where applicable)','Bodywork, doors and load security','Registration plates and markings','Leaks, fluid levels and exhaust','Safety equipment and emergency kit'];$('dailyChecks').innerHTML='<h3>Walkaround checklist</h3>'+checks.map((x,i)=>`<label class="check"><input type="checkbox" data-check="${i}"><span>${x}</span></label>`).join('');$('saveDaily').onclick=()=>{const reg=clean($('dailyReg').value);if(!reg){alert('Enter the vehicle or trailer registration.');return}const rec={kind:'Daily driver inspection',reg,person:$('driverName').value,mileage:$('mileage').value,checks:checks.map((label,i)=>({label,checked:document.querySelector(`[data-check="${i}"]`).checked})),notes:$('dailyNotes').value,photo:$('dailyPhoto').files[0]?.name||'',date:new Date().toISOString()};const a=read('hcu_inspections');a.unshift(rec);write('hcu_inspections',a);$('dailyStatus').textContent='Inspection saved on this device. Checked '+rec.checks.filter(x=>x.checked).length+' of '+checks.length+' items. Any defect must be assessed and dealt with under your operator procedures.';$('dailyStatus').classList.remove('hidden')};
-$('saveWorkshop').onclick=()=>{const reg=clean($('workReg').value);if(!reg){alert('Enter a vehicle or trailer registration.');return}const rec={kind:$('workType').value,reg,person:$('mechanic').value,findings:$('workFindings').value,status:$('workStatus').value,date:new Date().toISOString()};const a=read('hcu_inspections');a.unshift(rec);write('hcu_inspections',a);$('workStatusMsg').textContent='Workshop record saved on this device.';$('workStatusMsg').classList.remove('hidden')};
-function renderLists(){const vs=read('hcu_vehicles');$('vehicleList').innerHTML=vs.length?vs.map(v=>`<div class="item"><strong>${v.reg} <span class="pill">${v.type}</span></strong><small>Saved ${new Date(v.added).toLocaleString()}</small></div>`).join(''):'<div class="empty">No saved vehicles yet. Add one using HGV checks or Trailer checks.</div>';const ins=read('hcu_inspections');$('inspectionList').innerHTML=ins.length?ins.slice(0,20).map(x=>`<div class="item"><strong>${x.kind} · ${x.reg}</strong><small>${new Date(x.date).toLocaleString()} · ${x.person||'No name recorded'}${x.status?' · '+x.status:''}</small></div>`).join(''):'<div class="empty">No inspection records yet.</div>'}
-$('linkTrailer').onclick=()=>{const tractor=clean($('tractorReg').value),trailer=clean($('fleetTrailer').value);if(!uk.test(tractor)||!uk.test(trailer)){alert('Enter valid current-style UK registrations for both vehicles.');return}const a=read('hcu_assignments');a.unshift({tractor,trailer,date:new Date().toISOString()});write('hcu_assignments',a);renderAssignments();alert('Trailer assignment saved on this device.')};function renderAssignments(){const a=read('hcu_assignments');$('assignmentList').innerHTML=a.length?a.map(x=>`<div class="item"><strong>${x.tractor} ↔ ${x.trailer}</strong><small>Saved ${new Date(x.date).toLocaleString()}</small></div>`).join(''):'<div class="empty">No trailer assignments saved.</div>'}
+const $=id=>document.getElementById(id);
+const clean=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const uk=/^[A-Z]{2}[0-9]{2}[A-Z]{3}$/;
+const read=k=>{try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return[]}};
+const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+
+function show(id){
+$('home').classList.toggle('hidden',id!=='home');
+document.querySelectorAll('.view').forEach(x=>x.classList.add('hidden'));
+if(id!=='home')$(id).classList.remove('hidden');
+$('pageTitle').textContent=({home:'Your vehicle workspace',lookup:'HGV checks',trailer:'Trailer checks',daily:'Daily driver inspections',workshop:'Workshop inspections',vehicles:'My vehicles',fleet:'Fleet management',account:'My account',calendar:'Maintenance calendar'})[id]||'HGV Check UK';
+if(id==='vehicles')renderLists();
+if(id==='fleet')renderAssignments();
+if(id==='calendar')renderCalendar();
+window.scrollTo(0,0);
+}
+document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>show(b.dataset.open));
+document.querySelectorAll('[data-home]').forEach(b=>b.onclick=()=>show('home'));
+
+function escapeHtml(s){
+return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function safeValue(v){
+if(v===null||v===undefined||v==='')return 'Not supplied';
+if(typeof v==='boolean')return v?'Yes':'No';
+if(typeof v==='object')return JSON.stringify(v);
+return String(v);
+}
+function reportField(label,value){
+return `<div class="report-field"><small>${escapeHtml(label)}</small><strong>${escapeHtml(value)}</strong></div>`;
+}
+
+function renderVehicleReport(regn,d){
+const v=d.dvla||{};
+const make=v.make||'Vehicle details';
+const model=v.model||'';
+const title=[make,model].filter(Boolean).join(' ');
+const tax=v.taxStatus||'Not available';
+const taxClass=/taxed/i.test(tax)?'good':'';
+const taxDue=v.taxDueDate?`Due ${v.taxDueDate}`:'Due date not supplied';
+const dvsaNotice=d.notices?.find(n=>n.source==='DVSA')?.message;
+const motStatus=v.motStatus||'Not supplied by DVLA';
+const motHtml=d.mot
+?`<div class="report-note good">DVSA test history data received.</div><details class="report-extra"><summary>View DVSA test history</summary><pre>${escapeHtml(JSON.stringify(d.mot,null,2))}</pre></details>`
+:`<div class="report-note warn">${escapeHtml(dvsaNotice||'DVSA test history is not currently available. This does not confirm that the vehicle has no test history.')}</div>`;
+
+const fields=[
+['Year',v.yearOfManufacture],
+['Vehicle type',v.typeApproval],
+['Revenue weight',v.revenueWeight!=null?Number(v.revenueWeight).toLocaleString('en-GB')+' kg':null],
+['Fuel',v.fuelType],
+['Colour',v.colour],
+['Euro standard',v.euroStatus],
+['Engine capacity',v.engineCapacity!=null?Number(v.engineCapacity).toLocaleString('en-GB')+' cc':null],
+['Wheelplan',v.wheelplan],
+['First registered',v.monthOfFirstRegistration],
+['Last V5C issued',v.dateOfLastV5CIssued],
+['CO₂ emissions',v.co2Emissions],
+['Marked for export',v.markedForExport]
+].filter(x=>x[1]!==undefined&&x[1]!==null&&x[1]!=='');
+
+const known=[
+'registrationNumber','make','model','taxStatus','taxDueDate','motStatus',
+'yearOfManufacture','typeApproval','revenueWeight','fuelType','colour',
+'euroStatus','engineCapacity','wheelplan','monthOfFirstRegistration',
+'dateOfLastV5CIssued','co2Emissions','markedForExport'
+];
+const extra=Object.fromEntries(Object.entries(v).filter(([k])=>!known.includes(k)));
+const plating=d.plating?.message||'VTG plating certificate data is not connected. Verified certificate details can be added when that feature is available.';
+
+return `<div class="report">
+<div class="report-head">
+<div>
+<div class="report-reg">${escapeHtml(regn)}</div>
+<div class="report-sub">${escapeHtml(title)}</div>
+</div>
+<span class="report-badge ${taxClass}">${escapeHtml(tax)}</span>
+</div>
+<div class="report-summary">
+<div class="report-stat"><small>Vehicle tax</small><strong>${escapeHtml(tax)}</strong><span>${escapeHtml(taxDue)}</span></div>
+<div class="report-stat"><small>DVLA MOT status</small><strong>${escapeHtml(motStatus)}</strong><span>DVSA history shown separately</span></div>
+</div>
+<div class="report-section">
+<h3>Vehicle details</h3>
+<div class="report-details">${fields.map(x=>reportField(x[0],safeValue(x[1]))).join('')||'<div class="muted">No technical details supplied.</div>'}</div>
+</div>
+<div class="report-section"><h3>MOT / annual test history</h3>${motHtml}</div>
+<div class="report-section"><h3>VTG plating certificate</h3><div class="report-note warn">${escapeHtml(plating)}</div></div>
+${Object.keys(extra).length?`<details class="report-extra"><summary>Other DVLA information</summary><pre>${escapeHtml(JSON.stringify(extra,null,2))}</pre></details>`:''}
+</div>`;
+}
+
+async function check(reg,resultId,type){
+const regn=clean(reg);
+const box=$(resultId);
+box.classList.remove('hidden');
+if(!uk.test(regn)){
+box.textContent='Please enter a valid current-style UK registration, for example AB12 CDE. Some older or specialist registrations may not be supported by this prototype.';
+box.className='status warn';
+return;
+}
+box.textContent='Sending registration to the vehicle lookup service…';
+box.className='status';
+try{
+const r=await fetch('/api/vehicle/'+encodeURIComponent(regn),{
+method:'POST',
+headers:{'Content-Type':'application/json'}
+});
+const d=await r.json();
+if(!r.ok)throw Error(d.error||'Lookup failed');
+if(type==='HGV'&&d.dvla){
+box.className='';
+box.innerHTML=renderVehicleReport(regn,d);
+}else{
+const msgs=[];
+if(d.dvla)msgs.push('DVLA data received.');
+else msgs.push('DVLA: '+(d.notices?.find(n=>n.source==='DVLA')?.message||'No data returned'));
+if(d.mot)msgs.push('MOT / annual test data received.');
+else msgs.push('DVSA: '+(d.notices?.find(n=>n.source==='DVSA')?.message||'No data returned'));
+msgs.push('VTG plating certificate: '+(d.plating?.message||'Not connected'));
+box.textContent=type+' '+regn+'\n'+msgs.join('\n');
+box.className='status '+(d.dvla||d.mot?'good':'warn');
+}
+}catch(e){
+box.textContent='Lookup service error: '+e.message;
+box.className='status warn';
+}
+}
+
+$('hgvCheck').onclick=()=>check($('hgvReg').value,'hgvResult','HGV');
+$('trailerCheck').onclick=()=>check($('trailerReg').value,'trailerResult','Trailer');
+
+function saveVehicle(reg,type){
+const r=clean(reg);
+if(!uk.test(r)){
+alert('Enter a valid current-style UK registration first.');
+return;
+}
+const a=read('hcu_vehicles');
+if(!a.some(x=>x.reg===r&&x.type===type))a.unshift({reg:r,type,added:new Date().toISOString()});
+write('hcu_vehicles',a);
+alert(type+' '+r+' saved on this device.');
+}
+$('saveHgv').onclick=()=>saveVehicle($('hgvReg').value,'HGV');
+$('saveTrailer').onclick=()=>saveVehicle($('trailerReg').value,'Trailer');
+
+const checks=[
+'Brakes and parking brake',
+'Steering and suspension',
+'Tyres, wheels and fixings',
+'Lights, indicators and reflectors',
+'Mirrors, glass and visibility',
+'Wipers and washers',
+'Horn and warning devices',
+'Coupling / fifth wheel / connections (where applicable)',
+'Bodywork, doors and load security',
+'Registration plates and markings',
+'Leaks, fluid levels and exhaust',
+'Safety equipment and emergency kit'
+];
+
+$('dailyChecks').innerHTML='<h3>Walkaround checklist</h3>'+checks.map((x,i)=>`<label class="check"><input type="checkbox" data-check="${i}"><span>${x}</span></label>`).join('');
+
+$('saveDaily').onclick=()=>{
+const reg=clean($('dailyReg').value);
+if(!reg){
+alert('Enter the vehicle or trailer registration.');
+return;
+}
+const rec={
+kind:'Daily driver inspection',
+reg,
+person:$('driverName').value,
+mileage:$('mileage').value,
+checks:checks.map((label,i)=>({label,checked:document.querySelector(`[data-check="${i}"]`).checked})),
+notes:$('dailyNotes').value,
+photo:$('dailyPhoto').files[0]?.name||'',
+date:new Date().toISOString()
+};
+const a=read('hcu_inspections');
+a.unshift(rec);
+write('hcu_inspections',a);
+$('dailyStatus').textContent='Inspection saved on this device. Checked '+rec.checks.filter(x=>x.checked).length+' of '+checks.length+' items. Any defect must be assessed and dealt with under your operator procedures.';
+$('dailyStatus').classList.remove('hidden');
+};
+
+$('saveWorkshop').onclick=()=>{
+const reg=clean($('workReg').value);
+if(!reg){
+alert('Enter a vehicle or trailer registration.');
+return;
+}
+const rec={
+kind:$('workType').value,
+reg,
+person:$('mechanic').value,
+findings:$('workFindings').value,
+status:$('workStatus').value,
+date:new Date().toISOString()
+};
+const a=read('hcu_inspections');
+a.unshift(rec);
+write('hcu_inspections',a);
+$('workStatusMsg').textContent='Workshop record saved on this device.';
+$('workStatusMsg').classList.remove('hidden');
+};
+
+function renderLists(){
+const vs=read('hcu_vehicles');
+$('vehicleList').innerHTML=vs.length
+?vs.map(v=>`<div class="item"><strong>${v.reg} <span class="pill">${v.type}</span></strong><small>Saved ${new Date(v.added).toLocaleString()}</small></div>`).join('')
+:'<div class="empty">No saved vehicles yet. Add one using HGV checks or Trailer checks.</div>';
+
+const ins=read('hcu_inspections');
+$('inspectionList').innerHTML=ins.length
+?ins.slice(0,20).map(x=>`<div class="item"><strong>${x.kind} · ${x.reg}</strong><small>${new Date(x.date).toLocaleString()} · ${x.person||'No name recorded'}${x.status?' · '+x.status:''}</small></div>`).join('')
+:'<div class="empty">No inspection records yet.</div>';
+}
+
+$('linkTrailer').onclick=()=>{
+const tractor=clean($('tractorReg').value);
+const trailer=clean($('fleetTrailer').value);
+if(!uk.test(tractor)||!uk.test(trailer)){
+alert('Enter valid current-style UK registrations for both vehicles.');
+return;
+}
+const a=read('hcu_assignments');
+a.unshift({tractor,trailer,date:new Date().toISOString()});
+write('hcu_assignments',a);
+renderAssignments();
+alert('Trailer assignment saved on this device.');
+};
+
+function renderAssignments(){
+const a=read('hcu_assignments');
+$('assignmentList').innerHTML=a.length
+?a.map(x=>`<div class="item"><strong>${x.tractor} ↔ ${x.trailer}</strong><small>Saved ${new Date(x.date).toLocaleString()}</small></div>`).join('')
+:'<div class="empty">No trailer assignments saved.</div>';
+}
 
 // Maintenance reminders are stored locally in this prototype. Server-side
 // accounts, shared calendars and email/push delivery are future integrations.
 function renderCalendar(){
- const items=read('hcu_reminders').sort((a,b)=>a.due.localeCompare(b.due));
- const today=new Date();today.setHours(0,0,0,0);
- let overdue=0,soon=0,later=0;
- for(const x of items){const d=new Date(x.due+'T00:00:00');const days=Math.round((d-today)/86400000);if(days<0)overdue++;else if(days<=30)soon++;else later++;}
- $('reminderSummary').innerHTML=[['Overdue',overdue],['Due in 30 days',soon],['Later',later]].map(([label,n])=>`<div class="item"><small>${label}</small><strong style="font-size:25px">${n}</strong></div>`).join('');
- $('reminderList').innerHTML=items.length?items.map(x=>{const d=new Date(x.due+'T00:00:00');const days=Math.round((d-today)/86400000);const state=days<0?'OVERDUE':days===0?'DUE TODAY':days<=7?'DUE WITHIN 7 DAYS':days<=30?'DUE WITHIN 30 DAYS':'UPCOMING';const cls=days<0?'danger':days<=7?'warn':'';return `<div class="item"><div class="toprow"><strong>${x.reg} · ${x.type}</strong><span class="pill">${state}</span></div><small>Due ${d.toLocaleDateString()}${x.notes?' · '+escapeHtml(x.notes):''}</small><div class="actions"><button class="secondary" data-delete-rem="${x.id}">Delete reminder</button></div></div>`}).join(''):'<div class="empty">No reminders yet. Add an MOT, inspection, service or document due date above.</div>';
- document.querySelectorAll('[data-delete-rem]').forEach(b=>b.onclick=()=>{write('hcu_reminders',read('hcu_reminders').filter(x=>x.id!==b.dataset.deleteRem));renderCalendar()});
-}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-$('addReminder').onclick=()=>{const reg=clean($('remReg').value),due=$('remDate').value;if(!uk.test(reg)){alert('Enter a valid current-style UK registration.');return}if(!due){alert('Choose a due date.');return}const a=read('hcu_reminders');a.push({id:'REM-'+Date.now(),reg,type:$('remType').value,due,notes:$('remNotes').value,created:new Date().toISOString()});write('hcu_reminders',a);$('remStatus').textContent='Reminder saved on this device. It will appear in the dashboard when due or approaching.';$('remStatus').classList.remove('hidden');$('remReg').value='';$('remDate').value='';$('remNotes').value='';renderCalendar()};
+const items=read('hcu_reminders').sort((a,b)=>a.due.localeCompare(b.due));
+const today=new Date();
+today.setHours(0,0,0,0);
+let overdue=0,soon=0,later=0;
 
-if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
-</script></body></html>
+for(const x of items){
+const d=new Date(x.due+'T00:00:00');
+const days=Math.round((d-today)/86400000);
+if(days<0)overdue++;
+else if(days<=30)soon++;
+else later++;
+}
+
+$('reminderSummary').innerHTML=[['Overdue',overdue],['Due in 30 days',soon],['Later',later]].map(([label,n])=>`<div class="item"><small>${label}</small><strong style="font-size:25px">${n}</strong></div>`).join('');
+
+$('reminderList').innerHTML=items.length
+?items.map(x=>{
+const d=new Date(x.due+'T00:00:00');
+const days=Math.round((d-today)/86400000);
+const state=days<0?'OVERDUE':days===0?'DUE TODAY':days<=7?'DUE WITHIN 7 DAYS':days<=30?'DUE WITHIN 30 DAYS':'UPCOMING';
+const cls=days<0?'danger':days<=7?'warn':'';
+return `<div class="item"><div class="toprow"><strong>${x.reg} · ${x.type}</strong><span class="pill">${state}</span></div><small>Due ${d.toLocaleDateString()}${x.notes?' · '+escapeHtml(x.notes):''}</small><div class="actions"><button class="secondary" data-delete-rem="${x.id}">Delete reminder</button></div></div>`;
+}).join('')
+:'<div class="empty">No reminders yet. Add an MOT, inspection, service or document due date above.</div>';
+
+document.querySelectorAll('[data-delete-rem]').forEach(b=>b.onclick=()=>{
+write('hcu_reminders',read('hcu_reminders').filter(x=>x.id!==b.dataset.deleteRem));
+renderCalendar();
+});
+}
+
+function escapeHtml(s){
+return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+$('addReminder').onclick=()=>{
+const reg=clean($('remReg').value);
+const due=$('remDate').value;
+if(!uk.test(reg)){
+alert('Enter a valid current-style UK registration.');
+return;
+}
+if(!due){
+alert('Choose a due date.');
+return;
+}
+const a=read('hcu_reminders');
+a.push({
+id:'REM-'+Date.now(),
+reg,
+type:$('remType').value,
+due,
+notes:$('remNotes').value,
+created:new Date().toISOString()
+});
+write('hcu_reminders',a);
+$('remStatus').textContent='Reminder saved on this device. It will appear in the dashboard when due or approaching.';
+$('remStatus').classList.remove('hidden');
+$('remReg').value='';
+$('remDate').value='';
+$('remNotes').value='';
+renderCalendar();
+};
+
+if('serviceWorker'in navigator){
+navigator.serviceWorker.register('/sw.js').catch(()=>{});
+}
+</script>
+
+
+</body>
+</html>
