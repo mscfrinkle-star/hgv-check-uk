@@ -144,21 +144,64 @@ header{padding-left:max(24px,calc((100% - 900px)/2));padding-right:max(24px,calc
 
 <section id="daily" class="view hidden">
 <button class="secondary back" data-home>← Home</button>
+
 <div class="panel">
-<h2>Daily driver inspection</h2>
-<p class="muted">Use this checklist as a record-keeping aid. It does not replace the operator's legally required inspection procedures.</p>
-<label for="dailyReg">Vehicle or trailer registration</label>
-<input id="dailyReg" class="reg" placeholder="AB12 CDE" maxlength="8">
+<h2>Daily vehicle inspection</h2>
+
+<p class="muted">Choose what you are inspecting. Tractor and trailer inspections are recorded separately.</p>
+
+<label for="inspectionType">What are you inspecting?</label>
+<select id="inspectionType">
+<option value="Tractor unit">Tractor unit</option>
+<option value="Trailer">Trailer</option>
+</select>
+
+<label for="dailyReg">Registration number</label>
+<input id="dailyReg" class="reg" maxlength="8" placeholder="AB12 CDE">
+
 <label for="driverName">Driver name</label>
 <input id="driverName" placeholder="Enter driver name">
-<label for="mileage">Odometer reading (if applicable)</label>
+
+<label for="mileage">Odometer reading (tractor only)</label>
 <input id="mileage" type="number" min="0" placeholder="Mileage">
+
 <div id="dailyChecks"></div>
-<label for="dailyNotes">Defects / notes</label>
-<textarea id="dailyNotes" placeholder="Describe any defects found. Include location and severity."></textarea>
-<label for="dailyPhoto">Add photograph (optional)</label>
-<input id="dailyPhoto" type="file" accept="image/*" capture="environment">
-<div class="actions"><button id="saveDaily">Save inspection on this device</button></div>
+
+<div id="defectDetails" class="hidden">
+<h3>Defect details</h3>
+
+<label for="defectDescription">Describe the defect</label>
+<textarea id="defectDescription" placeholder="Describe the problem and where it is located..."></textarea>
+
+<label for="defectSeverity">Defect severity</label>
+<select id="defectSeverity">
+<option value="">Choose severity</option>
+<option value="Minor">Minor</option>
+<option value="Major">Major</option>
+<option value="Dangerous">Dangerous</option>
+</select>
+
+<label for="defectPhoto">Photograph of defect</label>
+<input id="defectPhoto" type="file" accept="image/*" capture="environment">
+
+<div id="dangerWarning" class="status warn hidden">
+<strong>DANGEROUS DEFECT</strong><br>
+Do not use the vehicle or trailer until the defect has been properly assessed, rectified and authorised for return to service.
+</div>
+</div>
+
+<label for="dailyNotes">Additional notes</label>
+<textarea id="dailyNotes" placeholder="Any other inspection comments..."></textarea>
+
+<div class="check">
+<input type="checkbox" id="driverDeclaration">
+<span>I confirm that I have completed this inspection and reported the defects found.</span>
+</div>
+
+<div class="actions">
+<button id="saveDaily">Submit inspection</button>
+</div>
+
 <div id="dailyStatus" class="status hidden"></div>
 </div>
 </section>
@@ -421,44 +464,131 @@ alert(type+' '+r+' saved on this device.');
 $('saveHgv').onclick=()=>saveVehicle($('hgvReg').value,'HGV');
 $('saveTrailer').onclick=()=>saveVehicle($('trailerReg').value,'Trailer');
 
-const checks=[
+const tractorChecks=[
 'Brakes and parking brake',
-'Steering and suspension',
+'Steering',
 'Tyres, wheels and fixings',
 'Lights, indicators and reflectors',
 'Mirrors, glass and visibility',
 'Wipers and washers',
-'Horn and warning devices',
-'Coupling / fifth wheel / connections (where applicable)',
-'Bodywork, doors and load security',
-'Registration plates and markings',
-'Leaks, fluid levels and exhaust',
-'Safety equipment and emergency kit'
+'Horn',
+'Seat belts and cab',
+'Speedometer and warning lights',
+'Engine, exhaust and fluid leaks',
+'Fifth wheel and coupling',
+'Registration plates and safety equipment'
 ];
 
-$('dailyChecks').innerHTML='<h3>Walkaround checklist</h3>'+checks.map((x,i)=>`<label class="check"><input type="checkbox" data-check="${i}"><span>${x}</span></label>`).join('');
+const trailerChecks=[
+'Trailer tyres and wheels',
+'Wheel nuts and fixings',
+'Brakes and air connections',
+'Lights, indicators and reflectors',
+'Electrical connections',
+'Coupling and security',
+'Landing legs',
+'Bodywork, doors and curtains',
+'Load security',
+'Registration plates and markings',
+'Suspension and axles',
+'Leaks and safety equipment'
+];
 
-$('saveDaily').onclick=()=>{
-const reg=clean($('dailyReg').value);
-if(!reg){
-alert('Enter the vehicle or trailer registration.');
-return;
+function buildDailyChecklist(){
+ const type=$('inspectionType').value;
+ const items=type==='Trailer'?trailerChecks:tractorChecks;
+ $('dailyChecks').innerHTML='<h3>'+(type==='Trailer'?'Trailer':'Tractor unit')+' walkaround checklist</h3>'+
+ items.map((label,i)=>`
+ <div class="item">
+ <strong>${label}</strong>
+ <div class="actions">
+ <label><input type="radio" name="check${i}" value="Pass"> Pass</label>
+ <label><input type="radio" name="check${i}" value="Defect"> Defect</label>
+ <label><input type="radio" name="check${i}" value="Not applicable"> Not applicable</label>
+ </div>
+ </div>`).join('');
 }
-const rec={
-kind:'Daily driver inspection',
-reg,
-person:$('driverName').value,
-mileage:$('mileage').value,
-checks:checks.map((label,i)=>({label,checked:document.querySelector(`[data-check="${i}"]`).checked})),
-notes:$('dailyNotes').value,
-photo:$('dailyPhoto').files[0]?.name||'',
-date:new Date().toISOString()
-};
-const a=read('hcu_inspections');
-a.unshift(rec);
-write('hcu_inspections',a);
-$('dailyStatus').textContent='Inspection saved on this device. Checked '+rec.checks.filter(x=>x.checked).length+' of '+checks.length+' items. Any defect must be assessed and dealt with under your operator procedures.';
-$('dailyStatus').classList.remove('hidden');
+
+$('inspectionType').addEventListener('change',buildDailyChecklist);
+buildDailyChecklist();
+
+$('dailyChecks').addEventListener('change',()=>{
+ const defect=Array.from($('dailyChecks').querySelectorAll('input[value="Defect"]:checked')).length>0;
+ $('defectDetails').classList.toggle('hidden',!defect);
+ $('dangerWarning').classList.add('hidden');
+});
+
+$('defectSeverity').addEventListener('change',()=>{
+ $('dangerWarning').classList.toggle('hidden',$('defectSeverity').value!=='Dangerous');
+});
+$('saveDaily').onclick=()=>{
+ const reg=clean($('dailyReg').value);
+ const type=$('inspectionType').value;
+ const items=type==='Trailer'?trailerChecks:tractorChecks;
+
+ if(!reg){
+  alert('Enter the registration number.');
+  return;
+ }
+
+ if(!$('driverName').value.trim()){
+  alert('Enter the driver name.');
+  return;
+ }
+
+ if(!$('driverDeclaration').checked){
+  alert('Please confirm the driver declaration.');
+  return;
+ }
+
+ const results=items.map((label,i)=>({
+  label,
+  result:document.querySelector(`input[name="check${i}"]:checked`)?.value||'Not completed'
+ }));
+
+ if(results.some(x=>x.result==='Not completed')){
+  alert('Please complete every checklist item.');
+  return;
+ }
+
+ const defects=results.filter(x=>x.result==='Defect');
+
+ if(defects.length&&(!$('defectDescription').value.trim()||!$('defectSeverity').value)){
+  alert('Please enter the defect description and severity.');
+  return;
+ }
+
+ const rec={
+  kind:type+' daily inspection',
+  type,
+  reg,
+  person:$('driverName').value.trim(),
+  mileage:type==='Trailer'?'':$('mileage').value,
+  checks:results,
+  defects: defects.map(x=>({
+   item:x.label,
+   description:$('defectDescription').value,
+   severity:$('defectSeverity').value,
+   photo:$('defectPhoto').files[0]?.name||''
+  })),
+  notes:$('dailyNotes').value,
+  date:new Date().toISOString()
+ };
+
+ const a=read('hcu_inspections');
+ a.unshift(rec);
+ write('hcu_inspections',a);
+
+ $('dailyStatus').textContent=
+  'Inspection saved on this device. '+defects.length+
+  ' defect(s) recorded.'+
+  (defects.some(x=>$('defectSeverity').value==='Dangerous')
+   ?' DANGEROUS DEFECT: do not use until assessed and made safe.'
+   :'');
+
+ $('dailyStatus').classList.remove('hidden');
+ $('dailyStatus').classList.toggle('warn',defects.some(x=>$('defectSeverity').value==='Dangerous'));
+ $('dailyStatus').classList.toggle('good',defects.length===0);
 };
 
 $('saveWorkshop').onclick=()=>{
